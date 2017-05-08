@@ -1,21 +1,25 @@
 (ns pit-plugin.actions)
 
-
 (def actions-list (atom {}))
 
-;; Helpers
-(defmulti apply-action!
-  (fn [_ action-name & _]
-    action-name))
+;; Multimethods
 (defmulti apply-action
   (fn [_ action-name & _]
     action-name))
-(defn partitioning [[index item]]
-  (if (or (keyword? item)
-          (and (coll? item)
-               (not= (symbol "!") (first item))))
-    -1
-    index))
+(defmethod apply-action :default
+  [m action-name & _]
+  (println (str "/!\\ Cannot find action \"" action-name "\""))
+  (println (str "     You can define it with the function (defaction " (name action-name) " [m] (...))"))
+  m)
+(defmulti apply-action!
+  (fn [_ action-name & _]
+    action-name))
+(defmethod apply-action! :default
+  [_ action-name & _]
+  (println (str "/!\\ Cannot find side-affect action \"" (name action-name) "\""))
+  (println (str "     You can define it with the function (defaction! " action-name " [state] (...))")))
+
+;; Macro - Dispatch!
 (defn -dispatch! [state & instructions]
   (doseq [instruction instructions]
     (let [type-action (first instruction)
@@ -30,11 +34,14 @@
           (if (coll? action)
             (apply apply-action! state action)
             (apply-action! state action)))))))
-
-;; Macro - Dispatch!
 (defmacro dispatch! [state & args]
   (let [params args
         indexed-params (map-indexed (fn [i x] [i x]) params)
+        partitioning (fn [[index item]] (if (or (keyword? item)
+                                      (and (coll? item)
+                                           (not= (symbol "!") (first item))))
+                                -1
+                                index))
         partitioned-params (partition-by partitioning indexed-params)
         mapped-params (map (fn [x]
                              (let [remove-index (map second x)
@@ -55,26 +62,7 @@
     `(pit-plugin.actions/-dispatch! ~state ~@final-params)))
 
 ;; Macros - Defaction
-(defmacro defaction! [action-name & body]
-  (assert (symbol? action-name) "The action name has to be a symbol")
-  (let [fn-name (gensym)
-
-        doc-string (when (string? (first body)) (first body))
-        body (if doc-string (rest body) body)
-
-        in-coll? (list? (first body))
-        body (if in-coll? body (list body))
-        body (map (fn [[params & rest-body]]
-                    (list params `(let [~'reaction ~fn-name]
-                                    ~@rest-body)))
-                  body)]
-    `(do
-       (defn ~fn-name ~@body)
-       (defmethod apply-action! ~(keyword action-name)
-         [& ~'params]
-         (apply ~fn-name (keep-indexed #(when (not= 1 %1) %2)
-                                       ~'params))))))
-(defmacro defaction [action-name & body]
+(defn -defaction [bang? action-name & body]
   (assert (symbol? action-name) "The action name has to be a symbol")
   (let [fn-name (gensym)
 
@@ -92,18 +80,29 @@
         action-ns (str *ns*)
         signatures (->> body
                         (map first)
-                        (map #(mapv str %)))]
+                        #_(map #(mapv str %)))
+
+        action-list-key (if bang?
+                          [(symbol "!") (keyword action-name)]
+                          (keyword action-name))
+        defmulti-key (if bang?
+                       'pit-plugin.actions/apply-action!
+                       'pit-plugin.actions/apply-action)]
     (swap! actions-list
-           assoc (keyword action-name)
+           assoc action-list-key
            {:params signatures
             :namespace action-ns
             :documentation doc-string})
     `(do
        (defn ~fn-name ~@body)
-       (defmethod apply-action ~(keyword action-name)
+       (defmethod ~defmulti-key ~(keyword action-name)
          [& ~'params]
          (apply ~fn-name (keep-indexed #(when (not= 1 %1) %2)
                                        ~'params))))))
+(defmacro defaction! [& params]
+  (apply -defaction true params))
+(defmacro defaction [& params]
+  (apply -defaction false params))
 
 ;; Functions - RemoveAction
 (defn remove-action [action-name]
@@ -114,14 +113,3 @@
   (assert (keyword? action-name) "The action name has to be a keyword")
   (swap! actions-list dissoc action-name)
   (remove-method apply-action! action-name))
-
-;; Multimethods
-(defmethod apply-action! :default
-  [_ action-name & _]
-  (println (str "/!\\ Cannot find side-affect action \"" (name action-name) "\""))
-  (println (str "     You can define it with the function (defaction! " action-name " [state] (...))")))
-(defmethod apply-action :default
-  [m action-name & _]
-  (println (str "/!\\ Cannot find action \"" action-name "\""))
-  (println (str "     You can define it with the function (defaction " (name action-name) " [m] (...))"))
-  m)
