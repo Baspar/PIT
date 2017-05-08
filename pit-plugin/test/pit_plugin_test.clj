@@ -7,16 +7,26 @@
   "Action for test 2"
   [mm]
   (assoc mm :test 1))
-(defaction test-one
+(defaction inc-or-assoc
   "Action for test 1"
-  [mm]
-  (assoc mm :test 1))
+  ([m]
+   (update m :test #(if % (inc %) 1)))
+  ([m value]
+   (assoc m :test value)))
 
-(deftest xxx
-  (testing "The test"
-    (let [sstate (atom {})]
-      (dispatch! sstate [:test-one])
+(deftest simple-call
+  (testing "Call without params"
+    (let [state (atom {})]
+      (dispatch! state :inc-or-assoc)
       (is (= {:test 1}
-             @sstate)))))
+             @state))))
 
-(pprint @actions-list)
+  (testing "Call with a param"
+    (let [state (atom {})]
+      (dispatch! state [:inc-or-assoc 42])
+      (is (= {:test 42}
+             @state))))
+
+  )
+
+;; (pprint @actions-list)
