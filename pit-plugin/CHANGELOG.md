@@ -1,0 +1,13 @@
+# Change Log
+All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
+
+## [0.1.1] - 2017-02-14
+### Changed
+- Fix pre condition
+
+## [0.1.0] - 2017-02-14
+### Added
+- First version
+
+<!-- [Unreleased]: https://github.com/your-name/pit-dispatch/compare/0.1.1...HEAD -->
+<!-- [0.1.1]: https://github.com/your-name/pit-dispatch/compare/0.1.0...0.1.1 -->
