@@ -25,13 +25,14 @@
 
 ;; Remove action
 ;; (deftest actions-list-test
-;;   (testing "Actions-list after adding action"
-;;     (is (= @actions-list {:inc-or-assoc {:params '(["m"] ["m" "value"]),
-;;                                        :namespace "pit-plugin-test",
-;;                                        :documentation "Action for test 1"}})))
-;;   (remove-action :inc-or-assoc)
-;;   (testing "Action-list after removing action"
-;;     (is (= @actions-list {}))))
+;;   (testing "Empty before adding"
+;;     (is (= (:fake-action @actions-list) nil))
+;;     (defaction fake-action [m] m))
+;;   (testing "Contains information after defaction"
+;;     (is (not= (:fake-action @actions-list) nil)))
+;;   (remove-action :fake-action)
+;;   (testing "Empty after remove-action"
+;;     (is (= (:fake-action @actions-list) nil))))
 
 ;; Reaction
 (defaction! add-info
@@ -39,7 +40,6 @@
    (reaction state "test-info"))
   ([state info]
    (swap! state assoc :info info)))
-
 (deftest xxx
   (let [state (atom {})]
     (testing "Defaction!"
@@ -49,4 +49,16 @@
       (dispatch! state [! :add-info "My info"])
       (is (= {:info "My info"} @state)))))
 
-(pprint @actions-list)
+;; Dispatch! on a map
+(deftest dispatch!-map
+  (testing "Simple action on a map"
+    (let [m (dispatch! {}
+                       :inc-or-assoc)]
+      (is (= {:test 1} m))))
+  (testing "Composite action on a map"
+    (let [m (dispatch! {}
+                       [:inc-or-assoc 41]
+                       :inc-or-assoc)]
+      (is (= {:test 42} m)))))
+
+;; (pprint @actions-list)

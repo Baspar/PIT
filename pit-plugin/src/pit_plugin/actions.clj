@@ -1,5 +1,6 @@
 (ns pit-plugin.actions)
 
+;; Atom
 (def actions-list (atom {}))
 
 ;; Multimethods
@@ -19,29 +20,39 @@
   (println (str "/!\\ Cannot find side-affect action \"" (name action-name) "\""))
   (println (str "     You can define it with the function (defaction! " action-name " [state] (...))")))
 
+;; Helpers
+(defn atom? [x]
+  (instance? clojure.lang.Atom x))
+
 ;; Macro - Dispatch!
 (defn -dispatch! [state & instructions]
-  (doseq [instruction instructions]
-    (let [type-action (first instruction)
-          actions (rest instruction)]
-      (if (= :normal type-action)
-        (swap! state #(reduce (fn [local-state action] (if (coll? action)
-                                                         (apply apply-action local-state action)
-                                                         (apply-action local-state action)))
-                              %
-                              actions))
-        (doseq [action actions]
-          (if (coll? action)
-            (apply apply-action! state action)
-            (apply-action! state action)))))))
+  (let [reducer (fn [m actions]
+                  (reduce (fn [local-state action]
+                            (if (coll? action)
+                              (apply apply-action local-state action)
+                              (apply-action local-state action)))
+                          m
+                          actions))]
+    (if (atom? state)
+      (doseq [instruction instructions]
+        (let [type-action (first instruction)
+              actions (rest instruction)]
+
+          (if (= :normal type-action)
+            (swap! state #(reducer % actions))
+            (doseq [action actions]
+              (if (coll? action)
+                (apply apply-action! state action)
+                (apply-action! state action))))))
+      (reducer state (rest (first instructions))))))
 (defmacro dispatch! [state & args]
   (let [params args
         indexed-params (map-indexed (fn [i x] [i x]) params)
         partitioning (fn [[index item]] (if (or (keyword? item)
-                                      (and (coll? item)
-                                           (not= (symbol "!") (first item))))
-                                -1
-                                index))
+                                                (and (coll? item)
+                                                     (not= (symbol "!") (first item))))
+                                          -1
+                                          index))
         partitioned-params (partition-by partitioning indexed-params)
         mapped-params (map (fn [x]
                              (let [remove-index (map second x)
@@ -58,8 +69,9 @@
                             (if (= :side-effect (first x))
                               [:side-effect (vec (rest (second x)))]
                               x))
-                          mapped-params)]
-    `(pit-plugin.actions/-dispatch! ~state ~@final-params)))
+                          mapped-params)
+        dispatcher! 'pit-plugin.actions/-dispatch!]
+    `(~dispatcher! ~state ~@final-params)))
 
 ;; Macros - Defaction
 (defn -defaction [bang? action-name & body]
