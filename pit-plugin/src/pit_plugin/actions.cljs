@@ -17,6 +17,8 @@
 (defmulti apply-action!
   (fn [_ action-name & _]
     action-name))
+(defmethod apply-action! nil
+  [& _])
 (defmethod apply-action! :default
   [_ action-name & _]
   (println "/!\\ Cannot find side-effect action \"" action-name "\"\nYou can define it with the function (defaction!" action-name "[m] (...))"))
