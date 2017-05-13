@@ -1,10 +1,23 @@
 # pit
 
-A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
 FIXME
+
+
+## Test
+
+Testing is handled with lein-doo, cljs-test and Phant.JS.
+
+To launch it, simply type:
+```bash
+# Build JS file
+lein cljsbuild test
+
+# Start watcher and hot-test
+lein doo phantom test
+```
 
 ## License
 
