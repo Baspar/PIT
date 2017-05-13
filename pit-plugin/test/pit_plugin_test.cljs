@@ -61,3 +61,22 @@
                        [:inc-or-assoc 41]
                        :inc-or-assoc)]
       (is (= {:test 42} m)))))
+
+;; Dispatch! a "nil" action
+(deftest dispatch!-nil
+  (testing "Nil action on a map"
+    (let [m (dispatch! {}
+                       :inc-or-assoc
+                       (when false :inc-or-assoc)
+                       (when false [:inc-or-assoc])
+                       :inc-or-assoc)]
+      (is (= {:test 2} m))))
+  (testing "Nil action on an atom"
+    (let [state (atom {})]
+      (dispatch! state
+                 :inc-or-assoc
+                 (when false :inc-or-assoc)
+                 (when false [:inc-or-assoc])
+                 :inc-or-assoc)
+      (is (= {:test 2}
+             @state)))))

@@ -7,18 +7,19 @@
 (defmulti apply-action
   (fn [_ action-name & _]
     action-name))
+(defmethod apply-action nil
+  [m & _]
+  m)
 (defmethod apply-action :default
-  [m action-name & _]
-  (println (str "/!\\ Cannot find action \"" action-name "\""))
-  (println (str "     You can define it with the function (defaction " (name action-name) " [m] (...))"))
+  [m action-name & body]
+  (println "/!\\ Cannot find action \"" action-name "\"\nYou can define it with the function (defaction" action-name "[m] (...))")
   m)
 (defmulti apply-action!
   (fn [_ action-name & _]
     action-name))
 (defmethod apply-action! :default
   [_ action-name & _]
-  (println (str "/!\\ Cannot find side-affect action \"" (name action-name) "\""))
-  (println (str "     You can define it with the function (defaction! " action-name " [state] (...))")))
+  (println "/!\\ Cannot find side-effect action \"" action-name "\"\nYou can define it with the function (defaction!" action-name "[m] (...))"))
 
 ;; Helpers
 (defn atom? [x]

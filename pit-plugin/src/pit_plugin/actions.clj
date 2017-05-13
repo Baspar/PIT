@@ -58,10 +58,11 @@
 
     `(do
        (swap! actions-list
-              assoc ~action-list-key
-              {:params ~signatures
-               :namespace ~action-ns
-               :documentation ~doc-string})
+              update ~action-list-key
+              #(merge %
+                      {:params ~signatures
+                       :namespace ~action-ns
+                       :documentation ~doc-string}))
        (defn ~fn-name ~@body)
        (defmethod ~defmulti-key ~(keyword action-name)
          [& ~'params]
