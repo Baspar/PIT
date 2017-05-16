@@ -58,7 +58,7 @@
 
     `(do
        (swap! actions-list
-              update ~action-list-key
+              update-in [:actions ~action-list-key]
               #(merge %
                       {:params ~signatures
                        :namespace ~action-ns
