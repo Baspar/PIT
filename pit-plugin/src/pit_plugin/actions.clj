@@ -29,7 +29,7 @@
     `(pit-plugin.actions/-dispatch! ~state ~@final-params)))
 
 ;; Defaction
-(defn -defaction [bang? action-name & body]
+(defn -defaction [action-infos bang? action-name & body]
   (assert (symbol? action-name) "The action name has to be a symbol")
   (let [fn-name (gensym)
 
@@ -54,7 +54,8 @@
                           (keyword action-name))
         defmulti-key (if bang?
                        'pit-plugin.actions/apply-action!
-                       'pit-plugin.actions/apply-action)]
+                       'pit-plugin.actions/apply-action)
+        action-line (:line action-infos)]
 
     `(do
        (swap! actions-list
@@ -62,6 +63,7 @@
               #(merge %
                       {:params ~signatures
                        :namespace ~action-ns
+                       :line ~action-line
                        :documentation ~doc-string}))
        (defn ~fn-name ~@body)
        (defmethod ~defmulti-key ~(keyword action-name)
@@ -71,6 +73,8 @@
 
 ;; Macros - Defaction
 (defmacro defaction! [& params]
-  (apply -defaction true params))
+  (let [action-infos (meta &form)]
+    (apply -defaction action-infos true params)))
 (defmacro defaction [& params]
-  (apply -defaction false params))
+  (let [action-infos (meta &form)]
+    (apply -defaction action-infos false params)))
