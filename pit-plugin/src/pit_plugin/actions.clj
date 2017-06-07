@@ -3,6 +3,7 @@
 ;; Macro - Dispatch!
 (defmacro dispatch! [state & args]
   (let [params args
+
         indexed-params (map-indexed (fn [i x] [i x]) params)
         partitioning (fn [[index item]] (if (or (keyword? item)
                                                 (and (coll? item)
@@ -37,6 +38,9 @@
         doc-string (when (string? (first body)) (first body))
         body (if doc-string (rest body) body)
 
+        options (if (map? (first body)) (first body) {})
+        body (if (map? (first body)) (rest body) body)
+
         in-coll? (list? (first body))
         body (if in-coll? body (list body))
         body (map (fn [[params & rest-body]]
@@ -55,7 +59,8 @@
         defmulti-key (if bang?
                        'pit-plugin.actions/apply-action!
                        'pit-plugin.actions/apply-action)
-        action-line (:line action-infos)]
+        action-line (:line action-infos)
+        silent? (get options :silent false)]
 
     `(do
        (swap! actions-list
@@ -64,6 +69,7 @@
                       {:params ~signatures
                        :namespace ~action-ns
                        :line ~action-line
+                       :silent ~silent?
                        :documentation ~doc-string}))
        (defn ~fn-name ~@body)
        (defmethod ~defmulti-key ~(keyword action-name)
