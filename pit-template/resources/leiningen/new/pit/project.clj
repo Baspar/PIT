@@ -20,7 +20,7 @@
                         :source-paths ["src"]
                         :figwheel {:devcards true
                                    :open-urls ["http://localhost:3449/cards.html"]}
-                        :compiler {:main       "{{name}}.core"
+                        :compiler {:main       "{{name}}.dev-core"
                                    :asset-path "js/compiled/devcards_out"
                                    :output-to  "resources/public/js/compiled/{{sanitized}}_devcards.js"
                                    :output-dir "resources/public/js/compiled/devcards_out"
@@ -28,7 +28,7 @@
                        {:id "dev"
                         :source-paths ["src"]
                         :figwheel true
-                        :compiler {:main       "{{name}}.core"
+                        :compiler {:main       "{{name}}.dev-core"
                                    :asset-path "js/compiled/out"
                                    :output-to  "resources/public/js/compiled/{{sanitized}}.js"
                                    :output-dir "resources/public/js/compiled/out"

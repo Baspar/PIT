@@ -23,7 +23,7 @@
         default-dependencies ['[org.clojure/core.match      "0.3.0-alpha4"]
                               '[org.clojure/clojure         "1.8.0"]
                               '[org.clojure/clojurescript   "1.9.229"]
-                              '[pit-plugin                  "0.1.3"]
+                              '[pit-plugin                  "0.1.10"]
                               '[devcards "0.2.2" :exclusions [cljsjs/react]]
                               '[rum "0.10.7" :exclusions [cljsjs/react]]
                               '[cljsjs/react-dom            "15.4.2-2"]
@@ -39,8 +39,10 @@
         raw-files [;; Project
                    ["project.clj" (render "project.clj" data)]
 
+
                    ;; Core files
                    ["src/{{sanitized}}/core.cljs" (render "src/core.cljs" data)]
+                   ["src/{{sanitized}}/dev-core.cljs" (render "src/dev_core.cljs" data)]
                    ["src/{{sanitized}}/state.cljs" (render "src/state.cljs" data)]
                    ["src/{{sanitized}}/ui.cljs" (render "src/ui.cljs" data)]
 

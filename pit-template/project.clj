@@ -1,4 +1,4 @@
-(defproject pit/lein-template "0.1.3"
+(defproject pit/lein-template "0.1.10"
   :description "Clojurescript template with actions, http and history wrapper"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
