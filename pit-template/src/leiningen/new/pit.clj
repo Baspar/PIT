@@ -23,7 +23,7 @@
         default-dependencies ['[org.clojure/core.match      "0.3.0-alpha4"]
                               '[org.clojure/clojure         "1.8.0"]
                               '[org.clojure/clojurescript   "1.9.229"]
-                              '[pit-plugin                  "0.1.10"]
+                              '[pit-plugin                  "0.1.11"]
                               '[devcards "0.2.2" :exclusions [cljsjs/react]]
                               '[rum "0.10.7" :exclusions [cljsjs/react]]
                               '[cljsjs/react-dom            "15.4.2-2"]

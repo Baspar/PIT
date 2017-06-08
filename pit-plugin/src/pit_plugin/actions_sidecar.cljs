@@ -18,23 +18,20 @@
           overTop? (aset parent "scrollTop" (- (.-offsetTop node) (.-offsetTop parent) parentBorderTopWidth))
           overBottom? (aset parent "scrollTop" (- (+ (.-offsetTop node) (.-clientHeight node) ) (.-offsetTop parent) parentBorderTopWidth (.-clientHeight parent))))))
 ;; Helper - Set Ctrl-Shift-A
-(defonce set-key-down-document!
-  (memoize
-    (fn [state]
-      (when-let [node (.getElementById js/document "pit-plugin--actions-container")]
-        (set! (.-onkeydown js/document)
-              #(when (and (= (.-which %) 65)
-                          (.-ctrlKey %)
-                          (.-shiftKey %))
-                 (let [visible-keyword :actions-visibles
-                       visible? (not (get @state visible-keyword false))
-                       input-dom-node (.getElementById js/document "pit-plugin--actions-card--input")]
-                   (swap! state update visible-keyword not)
-                   (.setTimeout js/window
-                                (fn [] (if visible?
-                                         (.focus input-dom-node)
-                                         (.blur input-dom-node)))
-                                100))))))))
+(defn set-key-down-document! [state]
+  (set! (.-onkeydown js/document)
+        #(when (and (= (.-which %) 65)
+                    (.-ctrlKey %)
+                    (.-shiftKey %))
+           (let [visible-keyword :actions-visibles
+                 visible? (not (get @state visible-keyword false))
+                 input-dom-node (.getElementById js/document "pit-plugin--actions-card--input")]
+             (swap! state update visible-keyword not)
+             (.setTimeout js/window
+                          (fn [] (if visible?
+                                   (.focus input-dom-node)
+                                   (.blur input-dom-node)))
+                          100)))))
 
 
 ;; Search functions
