@@ -6,7 +6,7 @@
 
   :min-lein-version "2.7.1"
 
-  :dependencies [{{{dependencies}}}] 
+  :dependencies [{{{dependencies}}}]
 
   :plugins [[lein-figwheel "0.5.8"]
             [lein-cljsbuild "1.1.4" :exclusions [org.clojure/clojure]]]
@@ -20,7 +20,7 @@
                         :source-paths ["src"]
                         :figwheel {:devcards true
                                    :open-urls ["http://localhost:3449/cards.html"]}
-                        :compiler {:main       "{{name}}.dev-core"
+                        :compiler {:main       "dev.core"
                                    :asset-path "js/compiled/devcards_out"
                                    :output-to  "resources/public/js/compiled/{{sanitized}}_devcards.js"
                                    :output-dir "resources/public/js/compiled/devcards_out"
@@ -28,7 +28,7 @@
                        {:id "dev"
                         :source-paths ["src"]
                         :figwheel true
-                        :compiler {:main       "{{name}}.dev-core"
+                        :compiler {:main       "dev.core"
                                    :asset-path "js/compiled/out"
                                    :output-to  "resources/public/js/compiled/{{sanitized}}.js"
                                    :output-dir "resources/public/js/compiled/out"

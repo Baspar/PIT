@@ -1,4 +1,4 @@
-(ns {{name}}.dev-core
+(ns dev.core
   (:require [{{name}}.core]
             [pit-plugin.actions :refer [bind-actions-list]]))
 
